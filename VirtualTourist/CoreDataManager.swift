@@ -1,5 +1,5 @@
 //
-//  CoreDataStackManager.swift
+//  CoreDataManager.swift
 //  VirtualTourist
 //
 //  Created by soheiln on 5/13/16.
@@ -9,13 +9,15 @@
 import Foundation
 import CoreData
 
-class CoreDataStackManager {
+class CoreDataManager {
     
-    var instance: CoreDataStackManager!
     
-    func sharedInstance() -> CoreDataStackManager {
+    
+    // singleton design
+    static var instance: CoreDataManager!
+    static func sharedInstance() -> CoreDataManager {
         if instance == nil {
-            instance = CoreDataStackManager()
+            instance = CoreDataManager()
         }
         return instance
     }
@@ -30,7 +32,7 @@ class CoreDataStackManager {
     
     lazy var managedObjectModel: NSManagedObjectModel = {
         // The managed object model for the application. This property is not optional. It is a fatal error for the application not to be able to find and load its model.
-        let modelURL = NSBundle.mainBundle().URLForResource("CoreDataTest", withExtension: "momd")!
+        let modelURL = NSBundle.mainBundle().URLForResource("VirtualTourist", withExtension: "momd")!
         return NSManagedObjectModel(contentsOfURL: modelURL)!
     }()
     
