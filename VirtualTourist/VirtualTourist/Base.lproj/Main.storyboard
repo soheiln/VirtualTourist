@@ -67,16 +67,21 @@
                                     </collectionViewCell>
                                 </cells>
                             </collectionView>
-                            <button opaque="NO" contentMode="scaleToFill" fixedFrame="YES" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="gv2-cs-NKl" userLabel="dummyButton">
-                                <rect key="frame" x="277" y="81" width="46" height="30"/>
-                                <state key="normal" title="Button"/>
+                            <button opaque="NO" contentMode="scaleToFill" fixedFrame="YES" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="fCR-Ki-cdX" userLabel="dummyButton">
+                                <rect key="frame" x="214" y="88" width="173" height="30"/>
+                                <state key="normal" title="Drop Pin (dummy button)"/>
                                 <connections>
-                                    <action selector="dummyButtonPressed:" destination="ToN-GW-W3m" eventType="touchUpInside" id="WMd-LB-fvz"/>
+                                    <action selector="dummyButtonPressed:" destination="ToN-GW-W3m" eventType="touchUpInside" id="hbe-qF-owU"/>
                                 </connections>
                             </button>
+                            <activityIndicatorView opaque="NO" contentMode="scaleToFill" horizontalHuggingPriority="750" verticalHuggingPriority="750" style="whiteLarge" translatesAutoresizingMaskIntoConstraints="NO" id="rd8-eQ-a9t" userLabel="activityIndicator">
+                                <rect key="frame" x="282" y="281" width="37" height="37"/>
+                                <color key="color" red="0.0" green="0.47843137250000001" blue="1" alpha="1" colorSpace="calibratedRGB"/>
+                            </activityIndicatorView>
                         </subviews>
                         <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
                         <constraints>
+                            <constraint firstItem="rd8-eQ-a9t" firstAttribute="centerY" secondItem="3IS-GP-J8M" secondAttribute="centerY" id="4hD-la-sy6"/>
                             <constraint firstItem="hcs-Hl-TdS" firstAttribute="top" secondItem="t4W-ff-do5" secondAttribute="bottom" constant="150" id="DVb-Jf-TBe"/>
                             <constraint firstItem="emg-Rg-1cA" firstAttribute="centerX" secondItem="A0d-J2-ZEn" secondAttribute="centerX" id="FFE-eh-2dw"/>
                             <constraint firstAttribute="trailing" secondItem="A0d-J2-ZEn" secondAttribute="trailing" id="K2O-oI-Jce"/>
@@ -90,6 +95,7 @@
                             <constraint firstItem="2nu-m8-MhK" firstAttribute="leading" secondItem="3IS-GP-J8M" secondAttribute="leading" id="hwN-IF-MRC"/>
                             <constraint firstAttribute="trailing" secondItem="2nu-m8-MhK" secondAttribute="trailing" id="noO-83-WtF"/>
                             <constraint firstItem="t4W-ff-do5" firstAttribute="top" secondItem="rLS-Kh-5CP" secondAttribute="bottom" id="oio-dB-QvM"/>
+                            <constraint firstItem="rd8-eQ-a9t" firstAttribute="centerX" secondItem="3IS-GP-J8M" secondAttribute="centerX" id="sLS-77-UVS"/>
                             <constraint firstAttribute="trailing" secondItem="hcs-Hl-TdS" secondAttribute="trailing" id="tu9-I7-MHV"/>
                             <constraint firstItem="hcs-Hl-TdS" firstAttribute="bottom" secondItem="A0d-J2-ZEn" secondAttribute="top" id="tzp-2Q-Hh4"/>
                             <constraint firstItem="zBo-AA-lDN" firstAttribute="top" secondItem="A0d-J2-ZEn" secondAttribute="bottom" id="yjp-xM-pPs"/>
@@ -97,8 +103,8 @@
                     </view>
                     <connections>
                         <outlet property="OKButton" destination="KQD-Nt-GUd" id="gw8-ez-AeU"/>
+                        <outlet property="activityIndicator" destination="rd8-eQ-a9t" id="0SP-Fm-8Ld"/>
                         <outlet property="collectionView" destination="hcs-Hl-TdS" id="ocE-KK-UgG"/>
-                        <outlet property="dummyButton" destination="gv2-cs-NKl" id="tC5-zd-6Pr"/>
                         <outlet property="mapView" destination="2nu-m8-MhK" id="bcy-lG-UjO"/>
                         <outlet property="navigationBar" destination="t4W-ff-do5" id="Lkp-ld-bSU"/>
                         <outlet property="newCollectionButton" destination="emg-Rg-1cA" id="BCU-nd-fnW"/>

@@ -16,5 +16,9 @@ class Pin: NSManagedObject {
     @NSManaged var photos: [Photo]!
     
     
+    // Removes a photo from the photos collection of this pin
+    func removePhoto(photo: Photo) {
+        //TODO
+    }
     
 }

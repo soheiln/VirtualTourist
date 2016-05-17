@@ -16,7 +16,8 @@ class FlickrClient {
         
 
         // Configure HTTP request
-        let request = NSMutableURLRequest(URL: NSURL(string: Constants.flickerAPI.serviceURL)!)
+        let url = NSURL(string: Constants.flickerAPI.serviceURL + "&api_key=" + Constants.flickerAPI.Key + "&lat=" + String(latitude) + "&lon=" + String(longitude) + "&format=rest")!
+        let request = NSMutableURLRequest(URL: url)
         request.HTTPMethod = "GET"
         request.addValue("application/json", forHTTPHeaderField: "Accept")
         request.addValue("application/json", forHTTPHeaderField: "Content-Type")

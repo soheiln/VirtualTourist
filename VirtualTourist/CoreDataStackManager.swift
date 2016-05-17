@@ -1,5 +1,5 @@
 //
-//  CoreDataManager.swift
+//  CoreDataStackManager.swift
 //  VirtualTourist
 //
 //  Created by soheiln on 5/13/16.
@@ -9,15 +9,19 @@
 import Foundation
 import CoreData
 
-class CoreDataManager {
-    
+class CoreDataStackManager {
+
+    // App wide variables
+    var camera: Camera!
+    var pins: [Pin]!
+    var currentPin: Pin!
     
     
     // singleton design
-    static var instance: CoreDataManager!
-    static func sharedInstance() -> CoreDataManager {
+    static var instance: CoreDataStackManager!
+    static func sharedInstance() -> CoreDataStackManager {
         if instance == nil {
-            instance = CoreDataManager()
+            instance = CoreDataStackManager()
         }
         return instance
     }
