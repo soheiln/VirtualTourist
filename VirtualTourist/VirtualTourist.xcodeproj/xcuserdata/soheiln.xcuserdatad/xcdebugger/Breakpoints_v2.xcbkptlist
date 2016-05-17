@@ -10,11 +10,11 @@
             ignoreCount = "0"
             continueAfterRunningActions = "No"
             filePath = "VirtualTourist/ViewController.swift"
-            timestampString = "485139586.905474"
+            timestampString = "485216989.234564"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "119"
-            endingLineNumber = "119"
+            startingLineNumber = "155"
+            endingLineNumber = "155"
             landmarkName = "getNewCollectionForPin(_:)"
             landmarkType = "5">
          </BreakpointContent>

@@ -14,4 +14,12 @@ class Photo: NSManagedObject {
     @NSManaged var image: UIImage!
     @NSManaged var pin: Pin!
     
+    
+    convenience init(context: NSManagedObjectContext) {
+        if let ent = NSEntityDescription.entityForName("Photo", inManagedObjectContext: context) {
+            self.init(entity: ent, insertIntoManagedObjectContext: context)
+        } else {
+            fatalError("Could not find Entity for name: Photo")
+        }
+    }
 }

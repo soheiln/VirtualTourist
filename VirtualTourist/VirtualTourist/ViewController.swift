@@ -9,7 +9,7 @@
 import UIKit
 import MapKit
 
-class ViewController: UIViewController, MKMapViewDelegate, UICollectionViewDataSource, UICollectionViewDelegate {
+class ViewController: UIViewController, MKMapViewDelegate, UICollectionViewDataSource, UICollectionViewDelegate, UIGestureRecognizerDelegate {
 
     @IBOutlet weak var mapView: MKMapView!
     @IBOutlet weak var navigationBar: UINavigationBar!
@@ -20,6 +20,8 @@ class ViewController: UIViewController, MKMapViewDelegate, UICollectionViewDataS
     @IBOutlet weak var activityIndicator: UIActivityIndicatorView!
     @IBOutlet weak var flowLayout: UICollectionViewFlowLayout!
     
+    var lpgr: UILongPressGestureRecognizer!
+
     override func viewDidLoad() {
         super.viewDidLoad()
         initView()
@@ -37,6 +39,7 @@ class ViewController: UIViewController, MKMapViewDelegate, UICollectionViewDataS
         mapView.delegate = self
         collectionView.delegate = self
         collectionView.dataSource = self
+        setLongPressHandlerForMapView()
         initCollectionView()
         hidePhotoView()
         hideActivityIndicator()
@@ -82,6 +85,7 @@ class ViewController: UIViewController, MKMapViewDelegate, UICollectionViewDataS
         activityIndicator.stopAnimating()
     }
     
+    
     // Loads all pins and camera data
     func loadData() {
         loadCamera()
@@ -92,7 +96,6 @@ class ViewController: UIViewController, MKMapViewDelegate, UICollectionViewDataS
     func loadPins() {
         //TODO
     }
-    
     
     // Loads camera location
     func loadCamera() {
@@ -166,6 +169,40 @@ class ViewController: UIViewController, MKMapViewDelegate, UICollectionViewDataS
 
     }
     
+    // MARK: Map View Pin Drop Functionality
+    
+    // initializes map: sets long press handler for dropping pins
+    func setLongPressHandlerForMapView() {
+        lpgr = UILongPressGestureRecognizer(target: self, action: "handleLongPress:")
+        lpgr.minimumPressDuration = 2.0
+        lpgr.delaysTouchesBegan = true
+        lpgr.delegate = self
+        mapView.addGestureRecognizer(lpgr)
+    }
+    
+    // handles long press on map to drop pin
+    func handleLongPress(gestureRecognizer: UILongPressGestureRecognizer) {
+        if gestureRecognizer.state != UIGestureRecognizerState.Began {
+            return
+        }
+        
+        let touchPoint = gestureRecognizer.locationInView(mapView)
+        let touchMapCoordinate = mapView.convertPoint(touchPoint, toCoordinateFromView: mapView)
+        
+        //TODO: code refactor
+        let annotation = MKPointAnnotation()
+        annotation.coordinate = touchMapCoordinate
+        mapView.addAnnotation(annotation)
+    }
+    
+    // map view delegate function implementation to animate pin drop
+    func mapView(mapView: MKMapView, viewForAnnotation annotation: MKAnnotation) -> MKAnnotationView? {
+        let pinAnnotationView = MKPinAnnotationView(annotation: annotation, reuseIdentifier: nil)
+        pinAnnotationView.animatesDrop = true
+        return pinAnnotationView
+    }
+
+    
     
     // Saves camera location in persistent memory
     func saveCameraLocation() {
@@ -192,12 +229,12 @@ class ViewController: UIViewController, MKMapViewDelegate, UICollectionViewDataS
     @IBOutlet weak var dummyButton: UIButton!
     
     @IBAction func dummyButtonPressed(sender: AnyObject) {
-        let lat = getCameraCenterLatitude()
-        let lon = getCameraCenterLongitude()
+        let lat = NSNumber(double: getCameraCenterLatitude())
+        let lon = NSNumber(double: getCameraCenterLongitude())
         let pin = Pin()
         pin.latitude = lat
         pin.longitude = lon
-        dropPinAtCoordinate(lat, longitude: lon)
+        dropPinAtCoordinate(getCameraCenterLatitude(), longitude: getCameraCenterLongitude())
         getNewCollectionForPin(pin)
         
     }
@@ -237,7 +274,10 @@ extension ViewController {
     
     func collectionView(collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
         //TODO
-        return CoreDataStackManager.sharedInstance().currentPin.photos.count
+        if let currentPin = CoreDataStackManager.sharedInstance().currentPin {
+            return CoreDataStackManager.sharedInstance().currentPin.photos.count
+        }
+        return 0
     }
 
     
