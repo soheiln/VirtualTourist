@@ -22,6 +22,7 @@
 		18DB91651CEA6ED500E05F0D /* Constants.swift in Sources */ = {isa = PBXBuildFile; fileRef = 18DB91641CEA6ED500E05F0D /* Constants.swift */; };
 		18DB91AB1CEA8CA100E05F0D /* FlickrClient.swift in Sources */ = {isa = PBXBuildFile; fileRef = 18DB91AA1CEA8CA100E05F0D /* FlickrClient.swift */; };
 		18DB91AD1CEA988600E05F0D /* Camera.swift in Sources */ = {isa = PBXBuildFile; fileRef = 18DB91AC1CEA988600E05F0D /* Camera.swift */; };
+		18DB91AF1CEAAB6D00E05F0D /* PhotoCollectionViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 18DB91AE1CEAAB6D00E05F0D /* PhotoCollectionViewCell.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -63,6 +64,7 @@
 		18DB91641CEA6ED500E05F0D /* Constants.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Constants.swift; sourceTree = "<group>"; };
 		18DB91AA1CEA8CA100E05F0D /* FlickrClient.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = FlickrClient.swift; sourceTree = "<group>"; };
 		18DB91AC1CEA988600E05F0D /* Camera.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Camera.swift; sourceTree = "<group>"; };
+		18DB91AE1CEAAB6D00E05F0D /* PhotoCollectionViewCell.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = PhotoCollectionViewCell.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -161,6 +163,7 @@
 			children = (
 				18DB915C1CE651B800E05F0D /* UIUtilities.swift */,
 				18D7DE2C1CE4042200D8B442 /* ViewController.swift */,
+				18DB91AE1CEAAB6D00E05F0D /* PhotoCollectionViewCell.swift */,
 			);
 			name = ViewControllers;
 			sourceTree = "<group>";
@@ -305,6 +308,7 @@
 				18DB915F1CE6521900E05F0D /* Pin.swift in Sources */,
 				18D7DE2B1CE4042200D8B442 /* AppDelegate.swift in Sources */,
 				18DB915D1CE651B800E05F0D /* UIUtilities.swift in Sources */,
+				18DB91AF1CEAAB6D00E05F0D /* PhotoCollectionViewCell.swift in Sources */,
 				18DB91651CEA6ED500E05F0D /* Constants.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;

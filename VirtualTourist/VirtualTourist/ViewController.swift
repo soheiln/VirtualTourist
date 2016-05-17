@@ -9,7 +9,7 @@
 import UIKit
 import MapKit
 
-class ViewController: UIViewController, MKMapViewDelegate {
+class ViewController: UIViewController, MKMapViewDelegate, UICollectionViewDataSource, UICollectionViewDelegate {
 
     @IBOutlet weak var mapView: MKMapView!
     @IBOutlet weak var navigationBar: UINavigationBar!
@@ -18,7 +18,7 @@ class ViewController: UIViewController, MKMapViewDelegate {
     @IBOutlet weak var collectionView: UICollectionView!
     @IBOutlet weak var OKButton: UIButton!
     @IBOutlet weak var activityIndicator: UIActivityIndicatorView!
-    
+    @IBOutlet weak var flowLayout: UICollectionViewFlowLayout!
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -26,10 +26,18 @@ class ViewController: UIViewController, MKMapViewDelegate {
         
     }
 
+    override func viewWillAppear(animated: Bool) {
+        super.viewWillAppear(true)
+        collectionView.reloadData()
+    }
+
 
     // initializes ViewController
     func initView() {
         mapView.delegate = self
+        collectionView.delegate = self
+        collectionView.dataSource = self
+        initCollectionView()
         hidePhotoView()
         hideActivityIndicator()
         loadData()
@@ -208,3 +216,45 @@ class ViewController: UIViewController, MKMapViewDelegate {
     
 }
 
+
+// MARK: Extension - Code related to Collection View
+extension ViewController {
+    
+    // Initializes collection view
+    func initCollectionView() {
+        
+        let space: CGFloat = 3.0
+        let numSection = 3.0
+        let dimension = min((collectionView.frame.size.width - (CGFloat(numSection-1) * space)) / CGFloat(numSection),
+            (collectionView.frame.size.height - (CGFloat(numSection-1) * space)) / CGFloat(numSection))
+        
+        flowLayout.minimumInteritemSpacing = space
+        flowLayout.minimumLineSpacing = space
+        flowLayout.itemSize = CGSizeMake(dimension, dimension)
+
+    }
+    
+    
+    func collectionView(collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
+        //TODO
+        return CoreDataStackManager.sharedInstance().currentPin.photos.count
+    }
+
+    
+    // MARK: UICollectionViewDataSource Protocol
+    func collectionView(collectionView: UICollectionView, cellForItemAtIndexPath indexPath: NSIndexPath) -> UICollectionViewCell {
+        //TODO:
+        var cell = collectionView.dequeueReusableCellWithReuseIdentifier("PhotoCollectionViewCell", forIndexPath: indexPath) as! PhotoCollectionViewCell
+        let photo = CoreDataStackManager.sharedInstance().currentPin.photos[indexPath.row]
+        cell.imageView.image = photo.image!
+        return cell
+    }
+    
+    
+    func collectionView(collectionView: UICollectionView, didSelectItemAtIndexPath indexPath: NSIndexPath) {
+        //TODO
+        let pin = CoreDataStackManager.sharedInstance().currentPin
+        let photo = pin.photos[indexPath.row]
+        removePhoto(photo)
+    }
+}

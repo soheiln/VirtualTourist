@@ -3,6 +3,7 @@
     <dependencies>
         <deployment identifier="iOS"/>
         <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="9530"/>
+        <capability name="Constraints to layout margins" minToolsVersion="6.0"/>
     </dependencies>
     <scenes>
         <!--View Controller-->
@@ -49,21 +50,35 @@
                             </button>
                             <collectionView clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="scaleToFill" dataMode="prototypes" translatesAutoresizingMaskIntoConstraints="NO" id="hcs-Hl-TdS" userLabel="collectionView">
                                 <rect key="frame" x="0.0" y="214" width="600" height="337"/>
-                                <collectionViewFlowLayout key="collectionViewLayout" minimumLineSpacing="10" minimumInteritemSpacing="10" id="IDr-yn-aBT">
+                                <collectionViewFlowLayout key="collectionViewLayout" minimumLineSpacing="10" minimumInteritemSpacing="10" id="IDr-yn-aBT" userLabel="Flow Layout">
                                     <size key="itemSize" width="50" height="50"/>
                                     <size key="headerReferenceSize" width="0.0" height="0.0"/>
                                     <size key="footerReferenceSize" width="0.0" height="0.0"/>
                                     <inset key="sectionInset" minX="0.0" minY="0.0" maxX="0.0" maxY="0.0"/>
                                 </collectionViewFlowLayout>
                                 <cells>
-                                    <collectionViewCell opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" id="pLP-Hq-FEn">
+                                    <collectionViewCell opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" reuseIdentifier="PhotoCollectionViewCell" id="pLP-Hq-FEn" customClass="PhotoCollectionViewCell" customModule="VirtualTourist" customModuleProvider="target">
                                         <rect key="frame" x="0.0" y="0.0" width="50" height="50"/>
                                         <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
                                         <view key="contentView" opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center">
                                             <rect key="frame" x="0.0" y="0.0" width="50" height="50"/>
                                             <autoresizingMask key="autoresizingMask"/>
+                                            <subviews>
+                                                <imageView userInteractionEnabled="NO" contentMode="scaleToFill" horizontalHuggingPriority="251" verticalHuggingPriority="251" translatesAutoresizingMaskIntoConstraints="NO" id="tPf-gP-7cw" userLabel="imageView">
+                                                    <rect key="frame" x="-12" y="-12" width="74" height="74"/>
+                                                </imageView>
+                                            </subviews>
                                             <color key="backgroundColor" white="0.0" alpha="0.0" colorSpace="calibratedWhite"/>
                                         </view>
+                                        <constraints>
+                                            <constraint firstAttribute="trailingMargin" secondItem="tPf-gP-7cw" secondAttribute="trailing" constant="-20" id="6nq-eJ-4CO"/>
+                                            <constraint firstAttribute="bottomMargin" secondItem="tPf-gP-7cw" secondAttribute="bottom" constant="-20" id="7tJ-iT-vq4"/>
+                                            <constraint firstItem="tPf-gP-7cw" firstAttribute="leading" secondItem="pLP-Hq-FEn" secondAttribute="leadingMargin" constant="-20" id="bvn-DP-lM7"/>
+                                            <constraint firstItem="tPf-gP-7cw" firstAttribute="top" secondItem="pLP-Hq-FEn" secondAttribute="topMargin" constant="-20" id="cgR-lT-vWk"/>
+                                        </constraints>
+                                        <connections>
+                                            <outlet property="imageView" destination="tPf-gP-7cw" id="4lv-JQ-69G"/>
+                                        </connections>
                                     </collectionViewCell>
                                 </cells>
                             </collectionView>
@@ -105,6 +120,7 @@
                         <outlet property="OKButton" destination="KQD-Nt-GUd" id="gw8-ez-AeU"/>
                         <outlet property="activityIndicator" destination="rd8-eQ-a9t" id="0SP-Fm-8Ld"/>
                         <outlet property="collectionView" destination="hcs-Hl-TdS" id="ocE-KK-UgG"/>
+                        <outlet property="flowLayout" destination="IDr-yn-aBT" id="egc-gM-mVl"/>
                         <outlet property="mapView" destination="2nu-m8-MhK" id="bcy-lG-UjO"/>
                         <outlet property="navigationBar" destination="t4W-ff-do5" id="Lkp-ld-bSU"/>
                         <outlet property="newCollectionButton" destination="emg-Rg-1cA" id="BCU-nd-fnW"/>
