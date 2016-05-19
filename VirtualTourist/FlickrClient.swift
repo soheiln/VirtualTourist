@@ -66,7 +66,7 @@ class FlickrClient {
                 return
             }
 
-            print("JSON response data from flickr: \n\(parsedResult)\n\n")
+//TODO:remove            print("JSON response data from flickr: \n\(parsedResult)\n\n")
 
             
             // Extract data from response
@@ -79,7 +79,7 @@ class FlickrClient {
             }
             
             
-            getPhotosFromThisPage(parsedResult, num_photos: 10, completionHandler: completionHandler)
+            getPhotosFromThisPage(parsedResult, num_photos: Constants.num_photos_in_new_collection, completionHandler: completionHandler)
             
         }
 
@@ -92,9 +92,9 @@ class FlickrClient {
     static func getRandomPage(json: AnyObject) -> Int {
         
         let results = json as! [String: AnyObject]
-        print("results: \(results)")
+//        print("results: \(results)")
         let result = results["photos"] as! [String: AnyObject]
-        print("result: \(result)")
+//        print("result: \(result)")
         let pages = result["pages"] as! Int
 //        let per_page = result["perpage"] as! Int
 //        let total = result["total"] as! Int
@@ -103,18 +103,18 @@ class FlickrClient {
     }
     
     
-    
+    // method that takes a Flickr json response and selects num_photos number of random photos from the list
+    // and calls the completion handler on each NSData response
     static func getPhotosFromThisPage(json: AnyObject, num_photos: Int, completionHandler: (NSData -> Void)) {
         let results = json as! [String: AnyObject]
         let result = results["photos"] as! [String: AnyObject]
         let photos = result["photo"] as! [[String: AnyObject]]
         let n_photos = photos.count
         
-        //TODO
-        //just download one photo for now
+        // loop to download num_photos number of photos
         var count = 0
         var selected = [Int]()
-        while count < num_photos {
+        while count < num_photos { //TODO: handle the case where less than num_photos is avail in page
             let rand = random() % photos.count
             if selected.contains(rand) {
                 continue
@@ -136,19 +136,16 @@ class FlickrClient {
                 let task = session.dataTaskWithRequest(request) { data, response, error in
                     
                     // handle errors
-                    //TODO
                     guard (error == nil) else {
+                        //TODO: add error handling
                         return
                     }
                     
                     // handle data
                     completionHandler(data!)
                 }
-                
                 task.resume()
-
             }
-            
         }
 
         

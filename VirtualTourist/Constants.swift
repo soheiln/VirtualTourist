@@ -14,4 +14,6 @@ struct Constants {
         static let Secrect = "580e9683a5a2a2db"
         static let serviceURL = "https://api.flickr.com/services/rest/?method=flickr.photos.search&format=json"
     }
+    static let num_photos_in_new_collection = 10
+    static let MinimumPressDuration = 1.0
 }

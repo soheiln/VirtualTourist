@@ -10,7 +10,7 @@ import UIKit
 import MapKit
 import CoreData
 
-class ViewController: UIViewController, MKMapViewDelegate, UICollectionViewDataSource, UICollectionViewDelegate, UIGestureRecognizerDelegate {
+class ViewController: UIViewController, MKMapViewDelegate, UIGestureRecognizerDelegate {
 
     @IBOutlet weak var mapView: MKMapView!
     @IBOutlet weak var navigationBar: UINavigationBar!
@@ -24,6 +24,16 @@ class ViewController: UIViewController, MKMapViewDelegate, UICollectionViewDataS
     var lpgr: UILongPressGestureRecognizer!
     var context: NSManagedObjectContext!
 
+    var fetchedResultsController : NSFetchedResultsController! {
+        didSet{
+            // Whenever the frc changes, we execute the search and
+            // reload the table
+            executeSearch()
+            collectionView.reloadData()
+        }
+    }
+
+    
     //TODO: remove
     @IBOutlet weak var dummyImageView: UIImageView!
     
@@ -129,8 +139,13 @@ class ViewController: UIViewController, MKMapViewDelegate, UICollectionViewDataS
     
     // Loads the collection view with photos from the provided pin object
     func showPhotosInCollectionViewForPin(pin: Pin) {
+        //TODO: check
         CoreDataStackManager.sharedInstance().currentPin = pin
-        //TODO
+        var fetchRequest = NSFetchRequest(entityName: "Photo")
+        let predicate = NSPredicate(format: "pin = %@", argumentArray: [pin])
+        fetchRequest.predicate = predicate
+        fetchRequest.sortDescriptors = [NSSortDescriptor(key: "image", ascending: false)]
+        fetchedResultsController = NSFetchedResultsController(fetchRequest: fetchRequest, managedObjectContext: context, sectionNameKeyPath: nil, cacheName: nil)
     }
     
     
@@ -153,8 +168,8 @@ class ViewController: UIViewController, MKMapViewDelegate, UICollectionViewDataS
         // clear existing photos
         pin.photos = NSSet()
         showActivityIndicator()
+
         
-        // TODO: implement a way to load "new" photos by either using a random page or keeping track of page number
         // load new photos from Flickr
         let lat = Double(pin.latitude)
         let lon = Double(pin.longitude)
@@ -163,8 +178,8 @@ class ViewController: UIViewController, MKMapViewDelegate, UICollectionViewDataS
             // Perform on main thread
             dispatch_async(dispatch_get_main_queue()) {
                 
-                // photos are available
-                var photo = Photo(context: self.context)
+                // a new photos is available
+                let photo = Photo(context: self.context)
                 photo.pin = pin
                 photo.image = data
                 var photos = pin.photos.allObjects
@@ -175,7 +190,6 @@ class ViewController: UIViewController, MKMapViewDelegate, UICollectionViewDataS
                 self.saveAllData()
                 self.hideActivityIndicator()
                 self.showPhotosInCollectionViewForPin(pin)
-                
             }
 
         })
@@ -187,7 +201,7 @@ class ViewController: UIViewController, MKMapViewDelegate, UICollectionViewDataS
     // initializes map: sets long press handler for dropping pins
     func setLongPressHandlerForMapView() {
         lpgr = UILongPressGestureRecognizer(target: self, action: "handleLongPress:")
-        lpgr.minimumPressDuration = 2.0
+        lpgr.minimumPressDuration = Constants.MinimumPressDuration
         lpgr.delaysTouchesBegan = true
         lpgr.delegate = self
         mapView.addGestureRecognizer(lpgr)
@@ -292,20 +306,54 @@ extension ViewController {
     }
     
     
-    func collectionView(collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
-        //TODO
-        if let currentPin = CoreDataStackManager.sharedInstance().currentPin {
-            return CoreDataStackManager.sharedInstance().currentPin.photos.count
+}
+
+
+
+
+// MARK: - Fetched Results Controller Delegate
+extension ViewController: NSFetchedResultsControllerDelegate {
+    
+    func controllerDidChangeContent(controller: NSFetchedResultsController) {
+        fetchedResultsController = controller
+        collectionView.reloadData()
+    }
+    
+    func executeSearch() {
+        //TODO: check
+        do {
+            try fetchedResultsController.performFetch()
+            print("fetchedResultsController.performFetch()")
+        } catch {
+            print("Error while trying to perform a search: \n\(error)\n\(fetchedResultsController)")
         }
-        return 0
     }
 
+}
+
+
+// MARK: - Collection View Controller Delegate and Data Source
+extension ViewController: UICollectionViewDelegate, UICollectionViewDataSource {
+
+    func collectionView(collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
+        if fetchedResultsController == nil {
+            return 0
+        } else {
+            return fetchedResultsController.sections![section].numberOfObjects
+        }
+    }
     
-    // MARK: UICollectionViewDataSource Protocol
+    
     func collectionView(collectionView: UICollectionView, cellForItemAtIndexPath indexPath: NSIndexPath) -> UICollectionViewCell {
-        //TODO:
-        var cell = collectionView.dequeueReusableCellWithReuseIdentifier("PhotoCollectionViewCell", forIndexPath: indexPath) as! PhotoCollectionViewCell
-        let photo = CoreDataStackManager.sharedInstance().currentPin.photos.allObjects[indexPath.row] as! Photo
+        let cell = collectionView.dequeueReusableCellWithReuseIdentifier("PhotoCollectionViewCell", forIndexPath: indexPath) as! PhotoCollectionViewCell
+        
+//        let photo = fetchedResultsController.objectAtIndexPath(indexPath) as! Photo
+        if fetchedResultsController.fetchedObjects == nil {
+            print("fetchedResultsController.fetchedObjects is nil")
+        }
+        let photos = fetchedResultsController.fetchedObjects as! [Photo]
+        print("photos.count: \(photos)")
+        let photo = photos[indexPath.row]
         cell.imageView.image = UIImage(data: photo.image!)
         return cell
     }
@@ -317,4 +365,7 @@ extension ViewController {
         let photo = pin.photos.allObjects[indexPath.row] as! Photo
         removePhoto(photo)
     }
+
 }
+
+
