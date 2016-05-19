@@ -86,6 +86,10 @@
                                 <rect key="frame" x="282" y="281" width="37" height="37"/>
                                 <color key="color" red="0.0" green="0.47843137250000001" blue="1" alpha="1" colorSpace="calibratedRGB"/>
                             </activityIndicatorView>
+                            <imageView userInteractionEnabled="NO" contentMode="scaleToFill" horizontalHuggingPriority="251" verticalHuggingPriority="251" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="r4d-fX-OC3" userLabel="Dummy Image View">
+                                <rect key="frame" x="62" y="73" width="240" height="128"/>
+                                <color key="backgroundColor" red="0.0" green="0.30583988690000002" blue="0.6435904777" alpha="1" colorSpace="calibratedRGB"/>
+                            </imageView>
                         </subviews>
                         <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
                         <constraints>
@@ -113,6 +117,7 @@
                         <outlet property="OKButton" destination="KQD-Nt-GUd" id="gw8-ez-AeU"/>
                         <outlet property="activityIndicator" destination="rd8-eQ-a9t" id="0SP-Fm-8Ld"/>
                         <outlet property="collectionView" destination="hcs-Hl-TdS" id="ocE-KK-UgG"/>
+                        <outlet property="dummyImageView" destination="r4d-fX-OC3" id="OIh-Hp-vtc"/>
                         <outlet property="flowLayout" destination="IDr-yn-aBT" id="egc-gM-mVl"/>
                         <outlet property="mapView" destination="2nu-m8-MhK" id="bcy-lG-UjO"/>
                         <outlet property="navigationBar" destination="t4W-ff-do5" id="Lkp-ld-bSU"/>

@@ -13,7 +13,7 @@ class Pin: NSManagedObject {
     
     @NSManaged var latitude: NSNumber!
     @NSManaged var longitude: NSNumber!
-    @NSManaged var photos: [Photo]!
+    @NSManaged var photos: NSSet!
     
     // convenience initializer which in turn calls the designated initializer with entity and context parameters
     convenience init(context: NSManagedObjectContext) {
@@ -21,7 +21,7 @@ class Pin: NSManagedObject {
             self.init(entity: ent, insertIntoManagedObjectContext: context)
             self.latitude = 0.0
             self.longitude = 0.0
-            self.photos = [Photo]()
+            self.photos = NSSet()
         } else {
             fatalError("Unable to find Entity name: Pin")
         }

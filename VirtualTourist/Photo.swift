@@ -11,7 +11,7 @@ import CoreData
 import UIKit
 
 class Photo: NSManagedObject {
-    @NSManaged var image: UIImage!
+    @NSManaged var image: NSData!
     @NSManaged var pin: Pin!
     
     

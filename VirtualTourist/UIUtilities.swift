@@ -18,6 +18,7 @@ class UIUtilities {
         let alertAction = UIAlertAction(title: "OK", style: UIAlertActionStyle.Default, handler: nil)
         alert.addAction(alertAction)
         vc.presentViewController(alert, animated: true, completion: nil)
+        (vc as! ViewController).hideActivityIndicator()
     }
     
 }

@@ -8,6 +8,7 @@
 
 import UIKit
 import MapKit
+import CoreData
 
 class ViewController: UIViewController, MKMapViewDelegate, UICollectionViewDataSource, UICollectionViewDelegate, UIGestureRecognizerDelegate {
 
@@ -21,7 +22,11 @@ class ViewController: UIViewController, MKMapViewDelegate, UICollectionViewDataS
     @IBOutlet weak var flowLayout: UICollectionViewFlowLayout!
     
     var lpgr: UILongPressGestureRecognizer!
+    var context: NSManagedObjectContext!
 
+    //TODO: remove
+    @IBOutlet weak var dummyImageView: UIImageView!
+    
     override func viewDidLoad() {
         super.viewDidLoad()
         initView()
@@ -39,6 +44,7 @@ class ViewController: UIViewController, MKMapViewDelegate, UICollectionViewDataS
         mapView.delegate = self
         collectionView.delegate = self
         collectionView.dataSource = self
+        context = CoreDataStackManager.sharedInstance().managedObjectContext
         setLongPressHandlerForMapView()
         initCollectionView()
         hidePhotoView()
@@ -145,20 +151,27 @@ class ViewController: UIViewController, MKMapViewDelegate, UICollectionViewDataS
         //TODO: check implementation ***
         
         // clear existing photos
-        pin.photos = [Photo]()
+        pin.photos = NSSet()
         showActivityIndicator()
         
         // TODO: implement a way to load "new" photos by either using a random page or keeping track of page number
         // load new photos from Flickr
         let lat = Double(pin.latitude)
         let lon = Double(pin.longitude)
-        FlickrClient.getPhotosNearLocation(callerViewController: self, latitude: lat, longitude: lon, errorHandler: nil, completionHandler: {photos in
+        FlickrClient.getPhotosNearLocation(callerViewController: self, latitude: lat, longitude: lon, page_number: nil, errorHandler: nil, completionHandler: {data in
             
             // Perform on main thread
             dispatch_async(dispatch_get_main_queue()) {
                 
                 // photos are available
-                pin.photos = photos
+                var photo = Photo(context: self.context)
+                photo.pin = pin
+                photo.image = data
+                var photos = pin.photos.allObjects
+                photos.append(photo)
+                pin.photos = NSSet(array: photos)
+                self.dummyImageView.image = UIImage(data: data)
+                
                 self.saveAllData()
                 self.hideActivityIndicator()
                 self.showPhotosInCollectionViewForPin(pin)
@@ -169,7 +182,7 @@ class ViewController: UIViewController, MKMapViewDelegate, UICollectionViewDataS
 
     }
     
-    // MARK: Map View Pin Drop Functionality
+    // MARK: - Map View Pin Drop Functionality
     
     // initializes map: sets long press handler for dropping pins
     func setLongPressHandlerForMapView() {
@@ -193,6 +206,13 @@ class ViewController: UIViewController, MKMapViewDelegate, UICollectionViewDataS
         let annotation = MKPointAnnotation()
         annotation.coordinate = touchMapCoordinate
         mapView.addAnnotation(annotation)
+        
+        // Create Pin object
+        let pin = Pin(context: context)
+        pin.latitude = NSNumber(double: touchMapCoordinate.latitude)
+        pin.longitude = NSNumber(double: touchMapCoordinate.longitude)
+        getNewCollectionForPin(pin)
+        
     }
     
     // map view delegate function implementation to animate pin drop
@@ -285,8 +305,8 @@ extension ViewController {
     func collectionView(collectionView: UICollectionView, cellForItemAtIndexPath indexPath: NSIndexPath) -> UICollectionViewCell {
         //TODO:
         var cell = collectionView.dequeueReusableCellWithReuseIdentifier("PhotoCollectionViewCell", forIndexPath: indexPath) as! PhotoCollectionViewCell
-        let photo = CoreDataStackManager.sharedInstance().currentPin.photos[indexPath.row]
-        cell.imageView.image = photo.image!
+        let photo = CoreDataStackManager.sharedInstance().currentPin.photos.allObjects[indexPath.row] as! Photo
+        cell.imageView.image = UIImage(data: photo.image!)
         return cell
     }
     
@@ -294,7 +314,7 @@ extension ViewController {
     func collectionView(collectionView: UICollectionView, didSelectItemAtIndexPath indexPath: NSIndexPath) {
         //TODO
         let pin = CoreDataStackManager.sharedInstance().currentPin
-        let photo = pin.photos[indexPath.row]
+        let photo = pin.photos.allObjects[indexPath.row] as! Photo
         removePhoto(photo)
     }
 }
