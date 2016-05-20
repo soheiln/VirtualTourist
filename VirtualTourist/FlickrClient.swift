@@ -14,13 +14,10 @@ class FlickrClient {
     // static method that takes callerVC, latitude, and longitude and gets a set of photos near that coordinate
     static func getPhotosNearLocation(callerViewController vc: UIViewController, latitude: Double, longitude: Double, page_number: Int?, errorHandler: ((NSData?, NSURLResponse?, NSError?) -> Void)?, completionHandler: (NSData -> Void) ) {
         
-
         // Configure HTTP request
         let url = NSURL(string: Constants.flickerAPI.serviceURL + "&api_key=" + Constants.flickerAPI.Key + "&lat=" + String(latitude) + "&lon=" + String(longitude))!
         let request = NSMutableURLRequest(URL: url)
         request.HTTPMethod = "GET"
-        
-        print("\n\n\n url:\(url)\n\n\n")
         
         let session = NSURLSession.sharedSession()
         let task = session.dataTaskWithRequest(request) { data, response, error in
@@ -66,10 +63,6 @@ class FlickrClient {
                 return
             }
 
-            //TODO:remove            
-            print("JSON response data from flickr: \n\(parsedResult)\n\n")
-
-            
             // If page_number parameter was not provided as input, extract a valid random page number and retreive that for processing
             if page_number == nil {
                 let random_page = getRandomPage(parsedResult)

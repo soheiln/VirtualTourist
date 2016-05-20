@@ -26,14 +26,13 @@ class ViewController: UIViewController, MKMapViewDelegate, UIGestureRecognizerDe
 
     var fetchedResultsController : NSFetchedResultsController! {
         didSet{
-            // Whenever the frc changes, we execute the search and
-            // reload the table
+            //TODO:remove
+            print("in frc didSet")
+            // Whenever the frc changes, we execute the search and reload the table
             executeSearch()
             collectionView.reloadData()
         }
     }
-
-    
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -119,7 +118,6 @@ class ViewController: UIViewController, MKMapViewDelegate, UIGestureRecognizerDe
     
     // Loads all pins from persistent memory
     func loadPins() {
-        //TODO
         let fetchRequest = NSFetchRequest(entityName: "Pin")
         fetchRequest.sortDescriptors = [NSSortDescriptor(key: "latitude", ascending: false)]
         let fc = NSFetchedResultsController(fetchRequest: fetchRequest, managedObjectContext: context, sectionNameKeyPath: nil, cacheName: nil)
@@ -134,7 +132,6 @@ class ViewController: UIViewController, MKMapViewDelegate, UIGestureRecognizerDe
     
     // Loads camera location
     func loadCamera() {
-        //TODO
         let fetchRequest = NSFetchRequest(entityName: "Camera")
         fetchRequest.sortDescriptors = [NSSortDescriptor(key: "x", ascending: false)]
         let fc = NSFetchedResultsController(fetchRequest: fetchRequest, managedObjectContext: context, sectionNameKeyPath: nil, cacheName: nil)
@@ -154,27 +151,20 @@ class ViewController: UIViewController, MKMapViewDelegate, UIGestureRecognizerDe
         } catch {
             print("Error while trying to perform a search: \n\(error)\n\(fetchedResultsController)")
         }
-
     }
     
     
     // Updates map per camera settings and shows pins on the map
     func updateMap() {
-        //TODO: update camera
+        // update camera
         if let camera = CoreDataStackManager.sharedInstance().camera {
             let origin = MKMapPoint(x: camera.x as Double, y: camera.y as Double)
             let size = MKMapSize(width: camera.width as Double, height: camera.height as Double)
             let mapRect = MKMapRect(origin: origin, size: size)
             mapView.setVisibleMapRect(mapRect, animated: false)
-            
-            
-//            mapView.visibleMapRect.origin.x = camera.x as Double
-//            mapView.visibleMapRect.origin.y = camera.y as Double
-//            mapView.visibleMapRect.size.width = camera.width as Double
-//            mapView.visibleMapRect.size.height = camera.height as Double
         }
         
-        //TODO: show pins on map
+        // show pins on map
         let pins = CoreDataStackManager.sharedInstance().pins
         for pin in pins {
             showPinOnMap(pin)
@@ -191,18 +181,10 @@ class ViewController: UIViewController, MKMapViewDelegate, UIGestureRecognizerDe
 
     }
     
-    // Drops a pin at given coordinate
-    func dropPinAtCoordinate(latitude: Double, longitude: Double) {
-        //TODO
-    }
-    
-    
     // Saves all data in persistent memory
     func saveAllData() {
-        //TODO
         saveCameraLocation() //TODO: refactor to autoSave()
         CoreDataStackManager.sharedInstance().saveContext()
-        
     }
     
     
@@ -210,7 +192,7 @@ class ViewController: UIViewController, MKMapViewDelegate, UIGestureRecognizerDe
     func showPhotosInCollectionViewForPin(pin: Pin) {
         //TODO: check
         CoreDataStackManager.sharedInstance().currentPin = pin
-        var fetchRequest = NSFetchRequest(entityName: "Photo")
+        let fetchRequest = NSFetchRequest(entityName: "Photo")
         let predicate = NSPredicate(format: "pin = %@", argumentArray: [pin])
         fetchRequest.predicate = predicate
         fetchRequest.sortDescriptors = [NSSortDescriptor(key: "image", ascending: false)]
@@ -238,12 +220,9 @@ class ViewController: UIViewController, MKMapViewDelegate, UIGestureRecognizerDe
     
     // Load a new set of photos for Pin, save the final state, and show the updated photo collection in the view
     func getNewCollectionForPin(pin: Pin) {
-        //TODO: check implementation ***
-        
         // clear existing photos
         pin.photos = NSSet()
         showActivityIndicator()
-
         
         // load new photos from Flickr
         let lat = Double(pin.latitude)
@@ -269,9 +248,10 @@ class ViewController: UIViewController, MKMapViewDelegate, UIGestureRecognizerDe
         })
 
     }
-    
-    // MARK: - Map View Pin Drop Functionality
-    
+}
+
+// MARK: - Map View Pin Drop Functionality
+extension ViewController {
     // initializes map: sets long press handler for dropping pins
     func setLongPressHandlerForMapView() {
         lpgr = UILongPressGestureRecognizer(target: self, action: "handleLongPress:")
@@ -286,15 +266,14 @@ class ViewController: UIViewController, MKMapViewDelegate, UIGestureRecognizerDe
         if gestureRecognizer.state != UIGestureRecognizerState.Began {
             return
         }
+        // add pin on map
         let touchPoint = gestureRecognizer.locationInView(mapView)
         let touchMapCoordinate = mapView.convertPoint(touchPoint, toCoordinateFromView: mapView)
-        
-        //TODO: code refactor
         let annotation = PinAnnotation()
         annotation.coordinate = touchMapCoordinate
         mapView.addAnnotation(annotation)
         
-        // Create Pin object
+        // create Pin object
         let pin = Pin(context: context)
         pin.latitude = NSNumber(double: touchMapCoordinate.latitude)
         pin.longitude = NSNumber(double: touchMapCoordinate.longitude)
@@ -302,12 +281,8 @@ class ViewController: UIViewController, MKMapViewDelegate, UIGestureRecognizerDe
         
     }
     
-    
     // Saves camera location in persistent memory
     func saveCameraLocation() {
-        //TODO: check implementation ***
-        print("in saveCameraLocation")
-
         if CoreDataStackManager.sharedInstance().camera == nil {
             // camera object being created for the first time
             CoreDataStackManager.sharedInstance().camera = Camera(context: context)
@@ -317,39 +292,7 @@ class ViewController: UIViewController, MKMapViewDelegate, UIGestureRecognizerDe
         CoreDataStackManager.sharedInstance().camera.width = mapView.visibleMapRect.size.width
         CoreDataStackManager.sharedInstance().camera.height = mapView.visibleMapRect.size.height
         CoreDataStackManager.sharedInstance().saveContext()
-        
     }
-    
-    
-    // TODO: remove below line after use
-    // ----------------------------------------------
-    
-    // this is to test showPhotoView() functionality
-    @IBOutlet weak var dummyButton: UIButton!
-    
-    @IBAction func dummyButtonPressed(sender: AnyObject) {
-        let lat = NSNumber(double: getCameraCenterLatitude())
-        let lon = NSNumber(double: getCameraCenterLongitude())
-        let pin = Pin()
-        pin.latitude = lat
-        pin.longitude = lon
-        dropPinAtCoordinate(getCameraCenterLatitude(), longitude: getCameraCenterLongitude())
-        getNewCollectionForPin(pin)
-        
-    }
-    
-    
-    // gets camera's center latitude
-    func getCameraCenterLatitude() -> Double {
-        return mapView.centerCoordinate.latitude
-    }
-    
-    // gets camera's center longitude
-    func getCameraCenterLongitude() -> Double {
-        return mapView.centerCoordinate.longitude
-    }
-    
-    
 }
 
 
@@ -384,6 +327,7 @@ extension ViewController: NSFetchedResultsControllerDelegate {
     
     func controllerDidChangeContent(controller: NSFetchedResultsController) {
         fetchedResultsController = controller
+        executeSearch()
         collectionView.reloadData()
     }
     
@@ -415,24 +359,33 @@ extension ViewController: UICollectionViewDelegate, UICollectionViewDataSource {
     func collectionView(collectionView: UICollectionView, cellForItemAtIndexPath indexPath: NSIndexPath) -> UICollectionViewCell {
         let cell = collectionView.dequeueReusableCellWithReuseIdentifier("PhotoCollectionViewCell", forIndexPath: indexPath) as! PhotoCollectionViewCell
         
-//        let photo = fetchedResultsController.objectAtIndexPath(indexPath) as! Photo
         if fetchedResultsController.fetchedObjects == nil {
             print("fetchedResultsController.fetchedObjects is nil")
         }
         let photos = fetchedResultsController.fetchedObjects as! [Photo]
-        print("photos.count: \(photos)")
+//        print("photos.count: \(photos)")
         let photo = photos[indexPath.row]
+//        print("indexpath.row: \(indexPath.row)")
+//        print("photo: \(photo)")
+//        if photo.image == nil {print("photo.image nil")}
         cell.imageView.image = UIImage(data: photo.image!)
+        cell.photo = photo
         return cell
     }
     
     
     func collectionView(collectionView: UICollectionView, didSelectItemAtIndexPath indexPath: NSIndexPath) {
-        //TODO
-//        let pin = CoreDataStackManager.sharedInstance().currentPin
-//        print("photo count: \(pin.photos.count)")
-//        removePhotoFromPin(pin, index: indexPath.row)
-//        print("photo count: \(pin.photos.count)")
+        let cell = collectionView.cellForItemAtIndexPath(indexPath) as! PhotoCollectionViewCell
+        let photo = cell.photo
+
+        // delete photo managed object
+        context.deleteObject(photo)
+        CoreDataStackManager.sharedInstance().saveContext()
+        
+        // update fetchedResultsController and reload collectionView
+        executeSearch()
+        collectionView.reloadData()
+
     }
 
 }
