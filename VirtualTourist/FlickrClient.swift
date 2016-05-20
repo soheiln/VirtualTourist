@@ -66,14 +66,24 @@ class FlickrClient {
                 return
             }
 
-//TODO:remove            print("JSON response data from flickr: \n\(parsedResult)\n\n")
+            //TODO:remove            
+            print("JSON response data from flickr: \n\(parsedResult)\n\n")
 
-            
-            // Extract data from response
             
             // If page_number parameter was not provided as input, extract a valid random page number and retreive that for processing
             if page_number == nil {
                 let random_page = getRandomPage(parsedResult)
+                
+                // case when no photos are available
+                if random_page == -1 {
+                    dispatch_async(dispatch_get_main_queue()) {
+                        UIUtilities.showAlret(callerViewController: vc, message: "No photos available for this location.")
+                        (vc as! ViewController).hideActivityIndicator()
+                    }
+                    return
+                }
+                
+                // random page selected, retrieve the random page
                 getPhotosNearLocation(callerViewController: vc, latitude: latitude, longitude: longitude, page_number: random_page, errorHandler: errorHandler, completionHandler: completionHandler)
                 return
             }
@@ -92,14 +102,14 @@ class FlickrClient {
     static func getRandomPage(json: AnyObject) -> Int {
         
         let results = json as! [String: AnyObject]
-//        print("results: \(results)")
         let result = results["photos"] as! [String: AnyObject]
-//        print("result: \(result)")
         let pages = result["pages"] as! Int
-//        let per_page = result["perpage"] as! Int
-//        let total = result["total"] as! Int
-        let random_page = random() % pages + 1
-        return random_page
+        if pages == 0 { // the case when no photos are available
+            return -1
+        } else {
+            let random_page = random() % pages + 1
+            return random_page
+        }
     }
     
     
@@ -109,12 +119,13 @@ class FlickrClient {
         let results = json as! [String: AnyObject]
         let result = results["photos"] as! [String: AnyObject]
         let photos = result["photo"] as! [[String: AnyObject]]
-        let n_photos = photos.count
+        let n_photos_avail = photos.count
         
         // loop to download num_photos number of photos
         var count = 0
         var selected = [Int]()
-        while count < num_photos { //TODO: handle the case where less than num_photos is avail in page
+        let n = min(n_photos_avail, num_photos) // for the case where less than num_photos is avail in page
+        while count < n {
             let rand = random() % photos.count
             if selected.contains(rand) {
                 continue

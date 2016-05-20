@@ -1,6 +1,11 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
 <model userDefinedModelVersionIdentifier="" type="com.apple.IDECoreDataModeler.DataModel" documentVersion="1.0" lastSavedToolsVersion="9525" systemVersion="15E65" minimumToolsVersion="Xcode 7.0">
-    <entity name="Camera" representedClassName=".Camera" syncable="YES"/>
+    <entity name="Camera" representedClassName=".Camera" syncable="YES">
+        <attribute name="height" optional="YES" attributeType="Double" defaultValueString="0.0" syncable="YES"/>
+        <attribute name="width" optional="YES" attributeType="Double" defaultValueString="0.0" syncable="YES"/>
+        <attribute name="x" optional="YES" attributeType="Double" defaultValueString="0.0" syncable="YES"/>
+        <attribute name="y" optional="YES" attributeType="Double" defaultValueString="0.0" syncable="YES"/>
+    </entity>
     <entity name="Photo" representedClassName=".Photo" syncable="YES">
         <attribute name="image" optional="YES" attributeType="Binary" syncable="YES"/>
         <relationship name="pin" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="Pin" inverseName="photos" inverseEntity="Pin" syncable="YES"/>
@@ -13,6 +18,6 @@
     <elements>
         <element name="Pin" positionX="-63" positionY="-18" width="128" height="90"/>
         <element name="Photo" positionX="-54" positionY="-9" width="128" height="75"/>
-        <element name="Camera" positionX="-36" positionY="9" width="128" height="45"/>
+        <element name="Camera" positionX="-36" positionY="9" width="128" height="105"/>
     </elements>
 </model>

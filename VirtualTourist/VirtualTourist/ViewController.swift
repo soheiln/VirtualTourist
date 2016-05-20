@@ -34,8 +34,6 @@ class ViewController: UIViewController, MKMapViewDelegate, UIGestureRecognizerDe
     }
 
     
-    //TODO: remove
-    @IBOutlet weak var dummyImageView: UIImageView!
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -48,6 +46,11 @@ class ViewController: UIViewController, MKMapViewDelegate, UIGestureRecognizerDe
         collectionView.reloadData()
     }
 
+    
+    @IBAction func newCollectionButtonPressed(sender: AnyObject) {
+        let pin = CoreDataStackManager.sharedInstance().currentPin
+        getNewCollectionForPin(pin)
+    }
 
     // initializes ViewController
     func initView() {
@@ -61,7 +64,6 @@ class ViewController: UIViewController, MKMapViewDelegate, UIGestureRecognizerDe
         hideActivityIndicator()
         loadData()
         updateMap()
-        
     }
 
     
@@ -84,6 +86,13 @@ class ViewController: UIViewController, MKMapViewDelegate, UIGestureRecognizerDe
         newCollectionButton.hidden = false
     }
     
+    // shows the photo view for the provided pin object - used for pins with already loaded photos
+    func showPhotoViewForPin(pin: Pin) {
+        CoreDataStackManager.sharedInstance().currentPin = pin
+        showPhotoView()
+        showPhotosInCollectionViewForPin(pin)
+        collectionView.reloadData()
+    }
     
     @IBAction func OKButtonPressed(sender: AnyObject) {
         saveAllData()
@@ -111,17 +120,75 @@ class ViewController: UIViewController, MKMapViewDelegate, UIGestureRecognizerDe
     // Loads all pins from persistent memory
     func loadPins() {
         //TODO
+        let fetchRequest = NSFetchRequest(entityName: "Pin")
+        fetchRequest.sortDescriptors = [NSSortDescriptor(key: "latitude", ascending: false)]
+        let fc = NSFetchedResultsController(fetchRequest: fetchRequest, managedObjectContext: context, sectionNameKeyPath: nil, cacheName: nil)
+        do {
+            try fc.performFetch()
+            CoreDataStackManager.sharedInstance().pins = fc.fetchedObjects as! [Pin]
+        } catch {
+            print("Error while trying to perform a search: \n\(error)\n\(fetchedResultsController)")
+        }
+        
     }
     
     // Loads camera location
     func loadCamera() {
         //TODO
+        let fetchRequest = NSFetchRequest(entityName: "Camera")
+        fetchRequest.sortDescriptors = [NSSortDescriptor(key: "x", ascending: false)]
+        let fc = NSFetchedResultsController(fetchRequest: fetchRequest, managedObjectContext: context, sectionNameKeyPath: nil, cacheName: nil)
+        do {
+            try fc.performFetch()
+            let cameras = fc.fetchedObjects as! [Camera]
+            print("number of cameras found: \(cameras.count)")
+            
+            if cameras.count == 0 {
+                // no camera object saved before
+                return
+            } else {
+                // camera object available from before
+                CoreDataStackManager.sharedInstance().camera = cameras[0]
+            }
+            
+        } catch {
+            print("Error while trying to perform a search: \n\(error)\n\(fetchedResultsController)")
+        }
+
     }
     
     
     // Updates map per camera settings and shows pins on the map
     func updateMap() {
-        //TODO
+        //TODO: update camera
+        if let camera = CoreDataStackManager.sharedInstance().camera {
+            let origin = MKMapPoint(x: camera.x as Double, y: camera.y as Double)
+            let size = MKMapSize(width: camera.width as Double, height: camera.height as Double)
+            let mapRect = MKMapRect(origin: origin, size: size)
+            mapView.setVisibleMapRect(mapRect, animated: false)
+            
+            
+//            mapView.visibleMapRect.origin.x = camera.x as Double
+//            mapView.visibleMapRect.origin.y = camera.y as Double
+//            mapView.visibleMapRect.size.width = camera.width as Double
+//            mapView.visibleMapRect.size.height = camera.height as Double
+        }
+        
+        //TODO: show pins on map
+        let pins = CoreDataStackManager.sharedInstance().pins
+        for pin in pins {
+            showPinOnMap(pin)
+        }
+    }
+    
+    // Shows a single Pin object on map
+    func showPinOnMap(pin: Pin) {
+        let annotation = PinAnnotation()
+        annotation.coordinate.latitude = CLLocationDegrees(pin.latitude)
+        annotation.coordinate.longitude = CLLocationDegrees(pin.longitude)
+        annotation.pin = pin
+        mapView.addAnnotation(annotation)
+
     }
     
     // Drops a pin at given coordinate
@@ -133,7 +200,9 @@ class ViewController: UIViewController, MKMapViewDelegate, UIGestureRecognizerDe
     // Saves all data in persistent memory
     func saveAllData() {
         //TODO
+        saveCameraLocation() //TODO: refactor to autoSave()
         CoreDataStackManager.sharedInstance().saveContext()
+        
     }
     
     
@@ -150,13 +219,19 @@ class ViewController: UIViewController, MKMapViewDelegate, UIGestureRecognizerDe
     
     
     // Removes the photo from pin object and adjusts the collection view accordingly and saves the final state
-    func removePhoto(photo: Photo) {
-
-        //TODO: check implementation ***
-        let pin = CoreDataStackManager.sharedInstance().currentPin
-        pin.removePhoto(photo)
+    func removePhotoFromPin(pin: Pin, index: Int) {
+        
+        var photoArray = pin.photos.allObjects
+        let photo = photoArray[index] as! Photo
+        context.deleteObject(photo)
+//        photoArray.removeAtIndex(index)
+        
+//        pin.photos = NSSet(array: photoArray)
         saveAllData()
-        showPhotosInCollectionViewForPin(pin)
+        
+//        pin.removePhoto(photo)
+//        saveAllData()
+//        showPhotosInCollectionViewForPin(pin)
         
     }
     
@@ -185,11 +260,10 @@ class ViewController: UIViewController, MKMapViewDelegate, UIGestureRecognizerDe
                 var photos = pin.photos.allObjects
                 photos.append(photo)
                 pin.photos = NSSet(array: photos)
-                self.dummyImageView.image = UIImage(data: data)
                 
                 self.saveAllData()
                 self.hideActivityIndicator()
-                self.showPhotosInCollectionViewForPin(pin)
+                self.showPhotoViewForPin(pin)
             }
 
         })
@@ -212,12 +286,11 @@ class ViewController: UIViewController, MKMapViewDelegate, UIGestureRecognizerDe
         if gestureRecognizer.state != UIGestureRecognizerState.Began {
             return
         }
-        
         let touchPoint = gestureRecognizer.locationInView(mapView)
         let touchMapCoordinate = mapView.convertPoint(touchPoint, toCoordinateFromView: mapView)
         
         //TODO: code refactor
-        let annotation = MKPointAnnotation()
+        let annotation = PinAnnotation()
         annotation.coordinate = touchMapCoordinate
         mapView.addAnnotation(annotation)
         
@@ -229,28 +302,20 @@ class ViewController: UIViewController, MKMapViewDelegate, UIGestureRecognizerDe
         
     }
     
-    // map view delegate function implementation to animate pin drop
-    func mapView(mapView: MKMapView, viewForAnnotation annotation: MKAnnotation) -> MKAnnotationView? {
-        let pinAnnotationView = MKPinAnnotationView(annotation: annotation, reuseIdentifier: nil)
-        pinAnnotationView.animatesDrop = true
-        return pinAnnotationView
-    }
-
-    
     
     // Saves camera location in persistent memory
     func saveCameraLocation() {
         //TODO: check implementation ***
-        
-        let camera = CoreDataStackManager.sharedInstance().camera
-        camera.centerLatitude = getCameraCenterLatitude()
-        camera.centerLongitude = getCameraCenterLatitude()
-        camera.minX = mapView.bounds.minX
-        camera.minY = mapView.bounds.minY
-        camera.maxX = mapView.bounds.maxX
-        camera.maxY = mapView.bounds.maxY
-        
-        // Save data
+        print("in saveCameraLocation")
+
+        if CoreDataStackManager.sharedInstance().camera == nil {
+            // camera object being created for the first time
+            CoreDataStackManager.sharedInstance().camera = Camera(context: context)
+        }
+        CoreDataStackManager.sharedInstance().camera.x = mapView.visibleMapRect.origin.x
+        CoreDataStackManager.sharedInstance().camera.y = mapView.visibleMapRect.origin.y
+        CoreDataStackManager.sharedInstance().camera.width = mapView.visibleMapRect.size.width
+        CoreDataStackManager.sharedInstance().camera.height = mapView.visibleMapRect.size.height
         CoreDataStackManager.sharedInstance().saveContext()
         
     }
@@ -294,14 +359,17 @@ extension ViewController {
     // Initializes collection view
     func initCollectionView() {
         
-        let space: CGFloat = 3.0
-        let numSection = 3.0
+        collectionView.backgroundColor = UIColor.whiteColor()
+        let space: CGFloat = CGFloat(Constants.CollectionView.SpaceBetweenSections)
+        let numSection = Constants.CollectionView.NumSectionsInPortraitMode
         let dimension = min((collectionView.frame.size.width - (CGFloat(numSection-1) * space)) / CGFloat(numSection),
             (collectionView.frame.size.height - (CGFloat(numSection-1) * space)) / CGFloat(numSection))
         
         flowLayout.minimumInteritemSpacing = space
         flowLayout.minimumLineSpacing = space
         flowLayout.itemSize = CGSizeMake(dimension, dimension)
+        
+//        print("space, numSection, dimension, frame width, frame height: \(space), \(numSection), \(dimension), \(collectionView.frame.size.width), \(collectionView.frame.size.height)")
 
     }
     
@@ -361,11 +429,32 @@ extension ViewController: UICollectionViewDelegate, UICollectionViewDataSource {
     
     func collectionView(collectionView: UICollectionView, didSelectItemAtIndexPath indexPath: NSIndexPath) {
         //TODO
-        let pin = CoreDataStackManager.sharedInstance().currentPin
-        let photo = pin.photos.allObjects[indexPath.row] as! Photo
-        removePhoto(photo)
+//        let pin = CoreDataStackManager.sharedInstance().currentPin
+//        print("photo count: \(pin.photos.count)")
+//        removePhotoFromPin(pin, index: indexPath.row)
+//        print("photo count: \(pin.photos.count)")
     }
 
 }
 
 
+// MARK - MKMapView Delegate
+extension ViewController {
+    
+    // map view delegate function implementation to animate pin drop
+    func mapView(mapView: MKMapView, viewForAnnotation annotation: MKAnnotation) -> MKAnnotationView? {
+        let pinAnnotationView = MKPinAnnotationView(annotation: annotation, reuseIdentifier: nil)
+        pinAnnotationView.animatesDrop = true
+        return pinAnnotationView
+    }
+    
+    
+    func mapView(mapView: MKMapView, didDeselectAnnotationView view: MKAnnotationView) {
+        print("pin selected!")
+        let pin = (view.annotation as! PinAnnotation).pin
+        print("pin.photos.count: \(pin.photos.count)")
+        showPhotoViewForPin(pin)
+        
+    }
+    
+}

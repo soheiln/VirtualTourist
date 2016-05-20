@@ -11,11 +11,22 @@ import CoreData
 import UIKit
 
 class Camera: NSManagedObject {
-    @NSManaged var centerLatitude: NSNumber!
-    @NSManaged var centerLongitude: NSNumber!
-    @NSManaged var minX: NSNumber!
-    @NSManaged var minY: NSNumber!
-    @NSManaged var maxX: NSNumber!
-    @NSManaged var maxY: NSNumber!
+    @NSManaged var x: NSNumber!
+    @NSManaged var y: NSNumber!
+    @NSManaged var width: NSNumber!
+    @NSManaged var height: NSNumber!
     
+    // convenience initializer which in turn calls the designated initializer with entity and context parameters
+    convenience init(context: NSManagedObjectContext) {
+        if let ent = NSEntityDescription.entityForName("Camera", inManagedObjectContext: context) {
+            self.init(entity: ent, insertIntoManagedObjectContext: context)
+            self.x = 0.0
+            self.y = 0.0
+            self.width = 0.0
+            self.height = 0.0
+        } else {
+            fatalError("Unable to find Entity name: Camera")
+        }
+    }
+
 }

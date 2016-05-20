@@ -23,6 +23,7 @@
 		18DB91AB1CEA8CA100E05F0D /* FlickrClient.swift in Sources */ = {isa = PBXBuildFile; fileRef = 18DB91AA1CEA8CA100E05F0D /* FlickrClient.swift */; };
 		18DB91AD1CEA988600E05F0D /* Camera.swift in Sources */ = {isa = PBXBuildFile; fileRef = 18DB91AC1CEA988600E05F0D /* Camera.swift */; };
 		18DB91AF1CEAAB6D00E05F0D /* PhotoCollectionViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 18DB91AE1CEAAB6D00E05F0D /* PhotoCollectionViewCell.swift */; };
+		18DB91B51CEE787600E05F0D /* PinAnnotation.swift in Sources */ = {isa = PBXBuildFile; fileRef = 18DB91B41CEE787600E05F0D /* PinAnnotation.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -65,6 +66,7 @@
 		18DB91AA1CEA8CA100E05F0D /* FlickrClient.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = FlickrClient.swift; sourceTree = "<group>"; };
 		18DB91AC1CEA988600E05F0D /* Camera.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Camera.swift; sourceTree = "<group>"; };
 		18DB91AE1CEAAB6D00E05F0D /* PhotoCollectionViewCell.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = PhotoCollectionViewCell.swift; sourceTree = "<group>"; };
+		18DB91B41CEE787600E05F0D /* PinAnnotation.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = PinAnnotation.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -164,6 +166,7 @@
 				18DB915C1CE651B800E05F0D /* UIUtilities.swift */,
 				18D7DE2C1CE4042200D8B442 /* ViewController.swift */,
 				18DB91AE1CEAAB6D00E05F0D /* PhotoCollectionViewCell.swift */,
+				18DB91B41CEE787600E05F0D /* PinAnnotation.swift */,
 			);
 			name = ViewControllers;
 			sourceTree = "<group>";
@@ -303,6 +306,7 @@
 				18DB91611CE6526F00E05F0D /* Photo.swift in Sources */,
 				18DB91AB1CEA8CA100E05F0D /* FlickrClient.swift in Sources */,
 				18DB915A1CE647C300E05F0D /* VirtualTourist.xcdatamodeld in Sources */,
+				18DB91B51CEE787600E05F0D /* PinAnnotation.swift in Sources */,
 				18DB91571CE646D700E05F0D /* CoreDataStackManager.swift in Sources */,
 				18D7DE2D1CE4042200D8B442 /* ViewController.swift in Sources */,
 				18DB915F1CE6521900E05F0D /* Pin.swift in Sources */,
