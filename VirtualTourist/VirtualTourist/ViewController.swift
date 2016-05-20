@@ -199,8 +199,12 @@ class ViewController: UIViewController, MKMapViewDelegate, UIGestureRecognizerDe
     
     // Load a new set of photos for Pin, save the final state, and show the updated photo collection in the view
     func getNewCollectionForPin(pin: Pin) {
-        // clear existing photos
-        pin.photos = NSSet()
+        // delete existing photos
+        for setItem in pin.photos {
+            let photo = setItem as! Photo
+            context.deleteObject(photo)
+        }
+
         showActivityIndicator()
         
         // load new photos from Flickr
