@@ -15,6 +15,7 @@ class CoreDataStackManager {
     var camera: Camera!
     var pins: [Pin]!
     var currentPin: Pin!
+    var currentAnnotation: PinAnnotation!
     
     
     // singleton design

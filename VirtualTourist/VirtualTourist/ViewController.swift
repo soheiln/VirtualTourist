@@ -95,6 +95,11 @@ class ViewController: UIViewController, MKMapViewDelegate, UIGestureRecognizerDe
     }
     
     @IBAction func OKButtonPressed(sender: AnyObject) {
+        // deselect current pin annotation
+        let currentAnnotation = CoreDataStackManager.sharedInstance().currentAnnotation
+        CoreDataStackManager.sharedInstance().currentAnnotation = nil
+        mapView.deselectAnnotation(currentAnnotation, animated: false)
+        print("currnet annotation deselected: \(currentAnnotation)")
         saveAllData()
         hidePhotoView()
     }
@@ -249,17 +254,24 @@ extension ViewController {
         if gestureRecognizer.state != UIGestureRecognizerState.Began {
             return
         }
-        // add pin on map
+        // get touch coordinates on map
         let touchPoint = gestureRecognizer.locationInView(mapView)
         let touchMapCoordinate = mapView.convertPoint(touchPoint, toCoordinateFromView: mapView)
-        let annotation = PinAnnotation()
-        annotation.coordinate = touchMapCoordinate
-        mapView.addAnnotation(annotation)
-        
+
         // create Pin object
         let pin = Pin(context: context)
         pin.latitude = NSNumber(double: touchMapCoordinate.latitude)
         pin.longitude = NSNumber(double: touchMapCoordinate.longitude)
+
+        // add pin on map
+        let annotation = PinAnnotation()
+        annotation.coordinate = touchMapCoordinate
+        annotation.pin = pin
+        CoreDataStackManager.sharedInstance().currentAnnotation = annotation
+        mapView.addAnnotation(annotation)
+        
+        CoreDataStackManager.sharedInstance().currentPin = pin
+        CoreDataStackManager.sharedInstance().currentAnnotation = annotation
         getNewCollectionForPin(pin)
         
     }
@@ -364,16 +376,31 @@ extension ViewController: UICollectionViewDelegate, UICollectionViewDataSource {
 extension ViewController {
     
     // map view delegate function implementation to animate pin drop
-    func mapView(mapView: MKMapView, viewForAnnotation annotation: MKAnnotation) -> MKAnnotationView? {
-        let pinAnnotationView = MKPinAnnotationView(annotation: annotation, reuseIdentifier: nil)
-        pinAnnotationView.animatesDrop = true
-        return pinAnnotationView
-    }
+//    func mapView(mapView: MKMapView, viewForAnnotation annotation: MKAnnotation) -> MKAnnotationView? {
+//        let pinAnnotationView = MKPinAnnotationView(annotation: annotation, reuseIdentifier: nil)
+//        print("Annotation: \(annotation)")
+//        pinAnnotationView.animatesDrop = true
+//        if let currentAnnotation = CoreDataStackManager.sharedInstance().currentAnnotation {
+//            if (annotation as! PinAnnotation) == currentAnnotation {
+//                pinAnnotationView.pinTintColor = UIColor.greenColor()
+//            }
+//            
+//        }
+//        
+//        return pinAnnotationView
+//    }
     
     func mapView(mapView: MKMapView, didDeselectAnnotationView view: MKAnnotationView) {
-        let pin = (view.annotation as! PinAnnotation).pin
-        showPhotoViewForPin(pin)
-        
+        mapView.deselectAnnotation(view.annotation, animated: false)
+        CoreDataStackManager.sharedInstance().currentAnnotation = nil
+    }
+    
+    func mapView(mapView: MKMapView, didSelectAnnotationView view: MKAnnotationView) {
+        let pinAnnotation = view.annotation as! PinAnnotation
+        mapView.deselectAnnotation(pinAnnotation, animated: false)
+        CoreDataStackManager.sharedInstance().currentAnnotation = pinAnnotation
+        let pin = pinAnnotation.pin
+        showPhotoViewForPin(pin)        
     }
     
 }
