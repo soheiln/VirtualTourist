@@ -26,11 +26,5 @@ class Pin: NSManagedObject {
             fatalError("Unable to find Entity name: Pin")
         }
     }
-    
-    
-    // Removes a photo from the photos collection of this pin
-    func removePhoto(photo: Photo) {
-        //TODO
-    }
-    
+        
 }

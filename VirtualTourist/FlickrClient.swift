@@ -82,7 +82,7 @@ class FlickrClient {
             }
             
             
-            getPhotosFromThisPage(parsedResult, num_photos: Constants.num_photos_in_new_collection, completionHandler: completionHandler)
+            getPhotosFromThisPage(callerViewController: vc, json: parsedResult, num_photos: Constants.num_photos_in_new_collection, completionHandler: completionHandler)
             
         }
 
@@ -108,7 +108,7 @@ class FlickrClient {
     
     // method that takes a Flickr json response and selects num_photos number of random photos from the list
     // and calls the completion handler on each NSData response
-    static func getPhotosFromThisPage(json: AnyObject, num_photos: Int, completionHandler: (NSData -> Void)) {
+    static func getPhotosFromThisPage(callerViewController vc: UIViewController, json: AnyObject, num_photos: Int, completionHandler: (NSData -> Void)) {
         let results = json as! [String: AnyObject]
         let result = results["photos"] as! [String: AnyObject]
         let photos = result["photo"] as! [[String: AnyObject]]
@@ -132,7 +132,6 @@ class FlickrClient {
                 let secret = photo["secret"] as! String
                 
                 let url_string = "https://farm" + String(farm_id) + ".staticflickr.com/" + String(server_id) + "/" + id + "_" + secret + ".jpg"
-                print(url_string)
                 let url = NSURL(string: url_string)!
                 let request = NSMutableURLRequest(URL: url)
                 request.HTTPMethod = "GET"
@@ -141,7 +140,11 @@ class FlickrClient {
                     
                     // handle errors
                     guard (error == nil) else {
-                        //TODO: add error handling
+                        dispatch_async(dispatch_get_main_queue()) {
+                            UIUtilities.showAlret(callerViewController: vc, message: "Error loading photos from the server.")
+                            (vc as! ViewController).hideActivityIndicator()
+                        }
+
                         return
                     }
                     

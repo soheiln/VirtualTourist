@@ -88,5 +88,28 @@ class CoreDataStackManager {
             }
         }
     }
+    
+    func autoSave(delayInSeconds: Int, completionHandler: (() -> Void)?) {
+        if delayInSeconds > 0 {
+            // save the context
+            do {
+                try saveContext()
+                print("autosaving")
+            } catch {
+                print("Error while autosaving")
+            }
+        }
+        
+        // call autoSave again after delay seconds
+        let delayInNanoSeconds = UInt64(delayInSeconds) * NSEC_PER_SEC
+        let time = dispatch_time(DISPATCH_TIME_NOW, Int64(delayInNanoSeconds))
+        
+        dispatch_after(time, dispatch_get_main_queue(), {
+            if let handler = completionHandler {
+                handler()
+            }
+            self.autoSave(delayInSeconds, completionHandler: completionHandler)
+        })
+    }
 
 }

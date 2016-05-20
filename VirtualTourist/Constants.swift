@@ -23,5 +23,7 @@ struct Constants {
     static let num_photos_in_new_collection = 16
     static let MinimumPressDuration = 1.0
     
+    static let autoSaveDelayInSeconds = 20
+    
     
 }

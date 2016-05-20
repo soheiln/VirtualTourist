@@ -25,10 +25,8 @@ class ViewController: UIViewController, MKMapViewDelegate, UIGestureRecognizerDe
     var context: NSManagedObjectContext!
 
     var fetchedResultsController : NSFetchedResultsController! {
+        // property observer
         didSet{
-            //TODO:remove
-            print("in frc didSet")
-            // Whenever the frc changes, we execute the search and reload the table
             executeSearch()
             collectionView.reloadData()
         }
@@ -57,6 +55,9 @@ class ViewController: UIViewController, MKMapViewDelegate, UIGestureRecognizerDe
         collectionView.delegate = self
         collectionView.dataSource = self
         context = CoreDataStackManager.sharedInstance().managedObjectContext
+        CoreDataStackManager.sharedInstance().autoSave(Constants.autoSaveDelayInSeconds, completionHandler: {
+            self.saveCameraLocation()
+        })
         setLongPressHandlerForMapView()
         initCollectionView()
         hidePhotoView()
@@ -138,7 +139,6 @@ class ViewController: UIViewController, MKMapViewDelegate, UIGestureRecognizerDe
         do {
             try fc.performFetch()
             let cameras = fc.fetchedObjects as! [Camera]
-            print("number of cameras found: \(cameras.count)")
             
             if cameras.count == 0 {
                 // no camera object saved before
@@ -183,14 +183,12 @@ class ViewController: UIViewController, MKMapViewDelegate, UIGestureRecognizerDe
     
     // Saves all data in persistent memory
     func saveAllData() {
-        saveCameraLocation() //TODO: refactor to autoSave()
+        saveCameraLocation()
         CoreDataStackManager.sharedInstance().saveContext()
     }
     
-    
     // Loads the collection view with photos from the provided pin object
     func showPhotosInCollectionViewForPin(pin: Pin) {
-        //TODO: check
         CoreDataStackManager.sharedInstance().currentPin = pin
         let fetchRequest = NSFetchRequest(entityName: "Photo")
         let predicate = NSPredicate(format: "pin = %@", argumentArray: [pin])
@@ -198,25 +196,6 @@ class ViewController: UIViewController, MKMapViewDelegate, UIGestureRecognizerDe
         fetchRequest.sortDescriptors = [NSSortDescriptor(key: "image", ascending: false)]
         fetchedResultsController = NSFetchedResultsController(fetchRequest: fetchRequest, managedObjectContext: context, sectionNameKeyPath: nil, cacheName: nil)
     }
-    
-    
-    // Removes the photo from pin object and adjusts the collection view accordingly and saves the final state
-    func removePhotoFromPin(pin: Pin, index: Int) {
-        
-        var photoArray = pin.photos.allObjects
-        let photo = photoArray[index] as! Photo
-        context.deleteObject(photo)
-//        photoArray.removeAtIndex(index)
-        
-//        pin.photos = NSSet(array: photoArray)
-        saveAllData()
-        
-//        pin.removePhoto(photo)
-//        saveAllData()
-//        showPhotosInCollectionViewForPin(pin)
-        
-    }
-    
     
     // Load a new set of photos for Pin, save the final state, and show the updated photo collection in the view
     func getNewCollectionForPin(pin: Pin) {
@@ -301,19 +280,15 @@ extension ViewController {
     
     // Initializes collection view
     func initCollectionView() {
-        
         collectionView.backgroundColor = UIColor.whiteColor()
+        let screenSize = UIScreen.mainScreen().bounds
+        let screenWidth = screenSize.width
         let space: CGFloat = CGFloat(Constants.CollectionView.SpaceBetweenSections)
         let numSection = Constants.CollectionView.NumSectionsInPortraitMode
-        let dimension = min((collectionView.frame.size.width - (CGFloat(numSection-1) * space)) / CGFloat(numSection),
-            (collectionView.frame.size.height - (CGFloat(numSection-1) * space)) / CGFloat(numSection))
-        
+        let dimension = (screenWidth - (CGFloat(numSection-1) * space)) / CGFloat(numSection)
         flowLayout.minimumInteritemSpacing = space
         flowLayout.minimumLineSpacing = space
         flowLayout.itemSize = CGSizeMake(dimension, dimension)
-        
-//        print("space, numSection, dimension, frame width, frame height: \(space), \(numSection), \(dimension), \(collectionView.frame.size.width), \(collectionView.frame.size.height)")
-
     }
     
     
@@ -332,10 +307,8 @@ extension ViewController: NSFetchedResultsControllerDelegate {
     }
     
     func executeSearch() {
-        //TODO: check
         do {
             try fetchedResultsController.performFetch()
-            print("fetchedResultsController.performFetch()")
         } catch {
             print("Error while trying to perform a search: \n\(error)\n\(fetchedResultsController)")
         }
@@ -358,16 +331,8 @@ extension ViewController: UICollectionViewDelegate, UICollectionViewDataSource {
     
     func collectionView(collectionView: UICollectionView, cellForItemAtIndexPath indexPath: NSIndexPath) -> UICollectionViewCell {
         let cell = collectionView.dequeueReusableCellWithReuseIdentifier("PhotoCollectionViewCell", forIndexPath: indexPath) as! PhotoCollectionViewCell
-        
-        if fetchedResultsController.fetchedObjects == nil {
-            print("fetchedResultsController.fetchedObjects is nil")
-        }
         let photos = fetchedResultsController.fetchedObjects as! [Photo]
-//        print("photos.count: \(photos)")
         let photo = photos[indexPath.row]
-//        print("indexpath.row: \(indexPath.row)")
-//        print("photo: \(photo)")
-//        if photo.image == nil {print("photo.image nil")}
         cell.imageView.image = UIImage(data: photo.image!)
         cell.photo = photo
         return cell
@@ -401,11 +366,8 @@ extension ViewController {
         return pinAnnotationView
     }
     
-    
     func mapView(mapView: MKMapView, didDeselectAnnotationView view: MKAnnotationView) {
-        print("pin selected!")
         let pin = (view.annotation as! PinAnnotation).pin
-        print("pin.photos.count: \(pin.photos.count)")
         showPhotoViewForPin(pin)
         
     }
